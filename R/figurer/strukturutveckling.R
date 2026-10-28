@@ -14,7 +14,8 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
   d <- dplyr::filter(underlag, .data$visa_i_figur, !is.na(.data$varde),
                      .data$ar >= basar, .data$ar <= slut_ar)
   if (!nrow(d)) stop("Inga observerade värden för STR-01")
-  grupper <- dplyr::distinct(d, .data$grupp, .data$figurgrupp)
+  grupper <- dplyr::distinct(d, .data$grupp, .data$figurgrupp, .data$gruppordning) |>
+    dplyr::arrange(.data$gruppordning, .data$grupp, .data$figurgrupp)
   figurer <- list()
   metadata <- list()
 
@@ -23,7 +24,10 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
     figurgrupp <- grupper$figurgrupp[[i]]
     x <- dplyr::filter(d, .data$grupp == .env$grupp,
                        .data$figurgrupp == .env$figurgrupp)
-    grodor <- sort(unique(x$Gröda_namn))
+    grodor <- x |>
+      dplyr::distinct(.data$Gröda_namn, .data$ordning) |>
+      dplyr::arrange(.data$ordning, .data$Gröda_namn) |>
+      dplyr::pull(.data$Gröda_namn)
     n <- length(grodor)
     if (!n) next
 
