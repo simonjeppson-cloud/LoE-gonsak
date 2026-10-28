@@ -70,6 +70,7 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
           ggplot2::theme(
             plot.margin = ggplot2::margin(5, 6, 5, 4),
             axis.text = ggplot2::element_text(size = 9),
+            axis.text.y = ggplot2::element_text(angle = 90, hjust = 0.5, vjust = 0.5),
             axis.text.x = if (j == n) ggplot2::element_text(size = 9) else
               ggplot2::element_blank(),
             axis.ticks.x = if (j == n) ggplot2::element_line() else
@@ -79,69 +80,62 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
       }
     }
 
-    # grid gör att rubrikerna ligger exakt över respektive diagram,
-    # och ger en enda horisontell grödetikett för varje rad.
-    figur <- grid::grid.grabExpr({
-      grid::grid.newpage()
-      lay <- grid::grid.layout(
-        nrow = n + 3L, ncol = 3L,
-        widths = grid::unit.c(grid::unit(1, "null"),
-                              grid::unit(1, "null"),
-                              grid::unit(2.5, "cm")),
-        heights = grid::unit.c(
-          grid::unit(0.85, "cm"), grid::unit(0.75, "cm"),
-          rep(grid::unit(1, "null"), n),
-          grid::unit(0.7, "cm")
-        )
+    # Sätt ihop panelerna som separata gtable-grobs.
+    # Detta undviker grid.grabExpr som återanvände samma panel på alla platser.
+    radh <- c(grid::unit(0.85, "cm"), grid::unit(0.75, "cm"),
+              rep(grid::unit(1, "null"), n), grid::unit(0.7, "cm"))
+    kolb <- grid::unit.c(grid::unit(1, "null"), grid::unit(1, "null"),
+                         grid::unit(2.8, "cm"))
+    figur <- gtable::gtable(widths = kolb, heights = radh)
+    figur <- gtable::gtable_add_grob(
+      figur,
+      grid::textGrob(paste("Strukturutveckling –", figurgrupp),
+                     x = 0.02, just = "left",
+                     gp = grid::gpar(fontfamily = "Times New Roman",
+                                     fontface = "bold", fontsize = 12)),
+      t = 1, l = 1, r = 3, name = "titel"
+    )
+    for (k in seq_len(2L)) {
+      rubrik <- grid::grobTree(
+        grid::rectGrob(gp = grid::gpar(fill = "#F3F5F6", col = NA)),
+        grid::textGrob(kolumnrubriker[[k]],
+                       gp = grid::gpar(fontfamily = "Times New Roman",
+                                       fontface = "bold", fontsize = 11))
       )
-      grid::pushViewport(grid::viewport(
-        layout = lay, width = grid::unit(1, "npc"),
-        height = grid::unit(1, "npc")
-      ))
-      grid::grid.text(
-        paste("Strukturutveckling –", figurgrupp),
-        x = grid::unit(0.02, "npc"), just = "left",
-        gp = grid::gpar(fontfamily = "Times New Roman",
-                        fontface = "bold", fontsize = 12),
-        vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 1:3)
+      figur <- gtable::gtable_add_grob(
+        figur, rubrik, t = 2, l = k, name = paste0("kolumn-", k)
       )
+    }
+    for (j in seq_len(n)) {
       for (k in seq_len(2L)) {
-        grid::pushViewport(grid::viewport(layout.pos.row = 2,
-                                           layout.pos.col = k))
-        grid::grid.rect(gp = grid::gpar(fill = "#F3F5F6", col = NA))
-        grid::grid.text(kolumnrubriker[[k]],
-                        gp = grid::gpar(fontfamily = "Times New Roman",
-                                        fontface = "bold", fontsize = 11))
-        grid::popViewport()
-      }
-      for (j in seq_len(n)) {
-        for (k in seq_len(2L)) {
-          pg <- paneler[[(j - 1L) * 2L + k]]
-          if (!is.null(pg)) {
-            grid::pushViewport(grid::viewport(layout.pos.row = j + 2L,
-                                               layout.pos.col = k))
-            grid::grid.draw(pg)
-            grid::popViewport()
-          }
+        pg <- paneler[[(j - 1L) * 2L + k]]
+        if (!is.null(pg)) {
+          figur <- gtable::gtable_add_grob(
+            figur, pg, t = j + 2L, l = k,
+            name = paste0("panel-", j, "-", k), clip = "off"
+          )
         }
-        grid::pushViewport(grid::viewport(layout.pos.row = j + 2L,
-                                           layout.pos.col = 3))
-        grid::grid.rect(x = .52, width = .92,
-                        gp = grid::gpar(fill = "#F3F5F6", col = NA))
-        grid::grid.text(grodor[[j]], x = .52,
-                        gp = grid::gpar(fontfamily = "Times New Roman",
-                                        fontface = "bold", fontsize = 9))
-        grid::popViewport()
       }
-      grid::grid.text(
-        "Observerade riksuppgifter. Företag kan förekomma under flera grödor; delmängder summeras inte.",
-        x = grid::unit(.02, "npc"), just = "left",
-        gp = grid::gpar(fontfamily = "Times New Roman", fontsize = 8),
-        vp = grid::viewport(layout.pos.row = n + 3L,
-                            layout.pos.col = 1:3)
+      namnbox <- grid::grobTree(
+        grid::rectGrob(gp = grid::gpar(fill = "#F3F5F6", col = NA)),
+        grid::textGrob(grodor[[j]], x = 0.5,
+                       gp = grid::gpar(fontfamily = "Times New Roman",
+                                       fontface = "bold", fontsize = 9))
       )
-      grid::popViewport()
-    }, wrap = TRUE)
+      figur <- gtable::gtable_add_grob(
+        figur, namnbox, t = j + 2L, l = 3,
+        name = paste0("groda-", j)
+      )
+    }
+    figur <- gtable::gtable_add_grob(
+      figur,
+      grid::textGrob(
+        "Observerade riksuppgifter. Företag kan förekomma under flera grödor; delmängder summeras inte.",
+        x = 0.02, just = "left",
+        gp = grid::gpar(fontfamily = "Times New Roman", fontsize = 8)
+      ),
+      t = n + 3L, l = 1, r = 3, name = "fotnot"
+    )
     class(figur) <- c("gronsak_struktur_figur", class(figur))
     nyckel <- paste(grupp, figurgrupp, sep = "__")
     figurer[[nyckel]] <- figur
