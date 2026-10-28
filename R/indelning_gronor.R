@@ -100,18 +100,24 @@ gronsak_indelning <- function(underlag, fil = "config/figurgrupper.csv") {
     stop("visa_i_figur måste vara TRUE/FALSE eller SANT/FALSKT för varje gröda")
   cfg$visa_i_figur <- ifelse(visa %in% c("TRUE", "SANT"), "TRUE", "FALSE")
   kod <- paste(underlag$grupp, as.character(underlag[["Gröda"]]), sep = "\r")
-  pos <- match(kod, nyckel)
-  if (anyNA(pos)) {
-    saknas <- unique(paste(underlag$grupp[is.na(pos)],
-                           underlag[["Gröda_namn"]][is.na(pos)], sep = ": "))
+  if (any(!kod %in% nyckel)) {
+    saknas <- unique(paste(underlag$grupp[!kod %in% nyckel],
+                           underlag[["Gröda_namn"]][!kod %in% nyckel], sep = ": "))
     stop("Nya/okända grödor saknas i config: ", paste(saknas, collapse = ", "))
   }
-  namnbyte <- cfg$groda_namn[pos] != as.character(underlag[["Gröda_namn"]])
+  # Utöka endast figurunderlaget, aldrig observationerna i källan.
+  index <- split(seq_along(kod), kod)
+  observationer <- index[nyckel]
+  config_rad <- rep(seq_len(nrow(cfg)), lengths(observationer))
+  data_rad <- unlist(observationer, use.names = FALSE)
+  namnbyte <- cfg$groda_namn[config_rad] !=
+    as.character(underlag[["Gröda_namn"]][data_rad])
   if (anyNA(namnbyte) || any(namnbyte))
     stop("Grödnamn skiljer sig från config; granska koder och namn.")
-  underlag$figurgrupp <- cfg$figurgrupp[pos]
-  underlag$visa_i_figur <- cfg$visa_i_figur[pos] == "TRUE"
-  underlag$ordning <- cfg$ordning[pos]
-  underlag$gruppordning <- cfg$gruppordning[pos]
+  underlag <- underlag[data_rad, , drop = FALSE]
+  underlag$figurgrupp <- cfg$figurgrupp[config_rad]
+  underlag$visa_i_figur <- cfg$visa_i_figur[config_rad] == "TRUE"
+  underlag$ordning <- cfg$ordning[config_rad]
+  underlag$gruppordning <- cfg$gruppordning[config_rad]
   underlag
 }
