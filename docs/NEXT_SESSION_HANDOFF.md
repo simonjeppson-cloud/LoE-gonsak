@@ -66,7 +66,7 @@ Konfigurationskolumner enligt `gronsak_indelning()`: `grupp`, `groda_kod`, `grod
 | STR-02 | Avkastningsutveckling | Skörd per hektar; växthus per m² | Tidigare körd och fungerande |
 | STR-03 | Produktionsutveckling | Skörd i ton, även där areal saknas | Tidigare körd och fungerande |
 | STR-04 | Förändringsindex | Antal företag, areal, avkastning, produktion som fyra färgade indexserier | Tidigare körd; verklig figur granskad |
-| STR-05 | Struktur och produktivitet, grödspecifik | Antal företag, areal/företag, skörd/ha (m² för växthus), skörd/företag i fyra separata paneler | Kod committad, **ännu inte verifierad med lyckad R-körning** |
+| STR-05 | Struktur och produktivitet, grödspecifik | Antal företag, areal/företag, skörd/ha (m² för växthus), skörd/företag i fyra separata paneler | Kod committad; export ändrad till **en PNG per gröda**, ännu inte verifierad med lyckad R-körning |
 
 Tidigare utveckling har använt standardbredd 16 cm, 300 dpi, Times New Roman, blå linjer/orange punkter, ljusgrå grödrubriker och vertikalt staplade grödor. STR-04 har fyra olika linjefärger; en möjlig framtida förbättring är gemensam legend, men ändra inte utan att prioritera det med användaren.
 
@@ -92,7 +92,7 @@ Identitet: `skörd/företag = (areal/företag) × (skörd/areal)`.
 
 **Tolkning:** större areal/företag indikerar större genomsnittlig odlingsenhet; högre skörd/areal indikerar högre markproduktivitet; högre skörd/företag kan bero på båda. Det bevisar inte att de enskilda överlevande företagen förbättrats. För en gröda avser antal företag grödodlande företag; summera inte företagsantal över grödor.
 
-**Kod:** `gronsak_berakna_str05()` återanvänder STR-04:s observerade företags-, areal- och skördevärden. Den sammanför måtten på samma år, räknar kvoter och indexerar alla fyra mot det gemensamma observerade basåret. `gronsak_str05_figurer()` skapar en 2×2-facetterad figur per gröda, med egna y-skalor och referenslinje vid 100. Figurerna grupperas och exporteras med `gronsak_kor_str05()`.
+**Kod:** `gronsak_berakna_str05()` återanvänder STR-04:s observerade företags-, areal- och skördevärden. Den sammanför måtten på samma år, räknar kvoter och indexerar alla fyra mot det gemensamma observerade basåret. `gronsak_str05_figurer()` skapar en **fristående PNG per gröda** med fyra 2×2-facetterade paneler, egna y-skalor och referenslinje vid 100. Figurgrupp används för urval och katalogmetadata, **inte för att slå ihop flera grödor till en bild**. Figurerna exporteras med `gronsak_kor_str05()`.
 
 **Metodisk uppföljning vid provkörning:** granska om kvoter bara visas när både täljare och nämnare finns samma år; om enhetsrubriker är tydliga; om fyra små paneler i 16 cm bredd är läsbara; om val av fria y-skalor gör jämförelsen missvisande; och om årsserier med luckor kopplas ihop utan att uppfattas som observerade mellanår. Dessa är granskningspunkter, inte konstaterade fel.
 
@@ -107,6 +107,8 @@ Tidigare erfarenheter:
 - STR-02 hade ett grafiskt problem där en `grid`-grob råkade skrivas in i senare rubriker; rättat genom att inte återanvända rubrikvariabeln för grob.
 - Öppna PNG-filer i Windows kan vara låsta och hindra ersättning. Stäng bildvisare innan omkörning.
 - Tidigare STR-04-figur visade bland annat äpple, päron, plommon och körsbär; figuren såg bra ut, men legend upprepades per gröda.
+
+**Senare korrigering (2026-10-28):** användaren påpekade att den första STR-05-versionen gav en mycket stor bild per figurgrupp, inte en per gröda. `str05_figurer.R` och `kor_str05.R` har därför ändrats till **en bild per gröda med fyra indikatorpaneler**, unik fil med grödnamn och grödkod, och en katalograd per gröda. Äldre grupp-PNG:er raderas inte automatiskt; kontrollera `bilder/` och rensa bara efter granskning. Ändringen är committad men ännu inte R-testad av användaren. STR-01–04 har inte ändrats.
 
 ## 8. Rekommenderad uppstart nästa session
 
