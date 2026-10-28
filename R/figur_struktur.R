@@ -59,7 +59,8 @@ gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L) {
   rubriker <- c(friland = "Frilandsgrönsaker", vaxthus = "Växthus",
                 bar = "Bär", frukt = "Frukt")
   figurer <- lapply(names(tabeller), function(grupp) {
-    d <- dplyr::filter(underlag, .data$grupp == grupp)
+    d <- dplyr::filter(underlag, .data$grupp == .env$grupp,
+                       .data[["Gröda_namn"]] != "Totalt")
     ggplot2::ggplot(d, ggplot2::aes(x = .data$ar, y = .data$index,
                                     colour = .data[["Gröda_namn"]],
                                     group = .data[["Gröda_namn"]])) +
