@@ -1,6 +1,7 @@
 # Explorativ strukturfigur per gröda, utan summering av företagsantal.
 # Kräver dplyr, ggplot2 och namngivna JV-tabeller (tabeller_namn).
-gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L) {
+gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L,
+                                   config_fil = "config/figurgrupper.csv") {
   stopifnot(is.list(tabeller), !is.null(names(tabeller)), basar <= slut_ar)
   if (!exists("gronsak_tema", mode = "function") ||
       !exists("gronsak_skala_farg", mode = "function")) {
@@ -63,7 +64,7 @@ gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L) {
   if (!exists("gronsak_indelning", mode = "function")) {
     stop('Kör source("R/indelning_gronor.R") före figur_struktur.R')
   }
-  underlag <- gronsak_indelning(underlag)
+  underlag <- gronsak_indelning(underlag, fil = config_fil)
   indelningskontroll <- underlag |>
     dplyr::distinct(.data$grupp, .data[["Gröda_namn"]],
                     .data$figurgrupp, .data$visa_i_figur) |>
