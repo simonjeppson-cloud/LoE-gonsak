@@ -65,7 +65,8 @@ gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L) {
                                     colour = .data[["Gröda_namn"]],
                                     group = .data[["Gröda_namn"]])) +
       ggplot2::geom_hline(yintercept = 100, colour = "grey75", linewidth = .35) +
-      ggplot2::geom_line(data = function(x) x[!is.na(x$index), , drop = FALSE],\n                         linewidth = .65) +
+      ggplot2::geom_line(data = function(x) x[!is.na(x$index), , drop = FALSE],
+                         linewidth = .65) +
       ggplot2::geom_point(na.rm = TRUE, size = 1) +
       ggplot2::facet_wrap(~ matt, ncol = 1, scales = "free_y") +
       ggplot2::scale_x_continuous(breaks = seq(basar, slut_ar, by = 3)) +
