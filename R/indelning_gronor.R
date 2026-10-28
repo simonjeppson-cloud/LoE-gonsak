@@ -91,7 +91,7 @@ gronsak_indelning <- function(underlag, fil = "config/figurgrupper.csv") {
   if (anyDuplicated(paste(gruppnyckel, cfg$ordning)))
     stop("Dubblerad ordning inom en figurgrupp")
   nyckel <- paste(cfg$grupp, cfg$groda_kod, sep = "\r")
-  if (anyDuplicated(nyckel)) stop("Dubblerade grödkoder i figurgrupper.csv")
+  if (anyDuplicated(paste(nyckel, cfg$figurgrupp))) stop("Dubblerad gröda inom samma figurgrupp")
   if (anyNA(cfg$figurgrupp) || any(!nzchar(trimws(cfg$figurgrupp))))
     stop("Alla grödor måste ha en figurgrupp i figurgrupper.csv")
   # Svensk Excel kan skriva logiska värden som SANT/FALSKT.
