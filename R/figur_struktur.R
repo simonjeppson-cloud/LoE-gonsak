@@ -2,6 +2,10 @@
 # Kräver dplyr, ggplot2 och namngivna JV-tabeller (tabeller_namn).
 gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L) {
   stopifnot(is.list(tabeller), !is.null(names(tabeller)), basar <= slut_ar)
+  if (!exists("gronsak_tema", mode = "function") ||
+      !exists("gronsak_skala_farg", mode = "function")) {
+    stop("Kör source(\"R/tema_rapport.R\") före figur_struktur.R")
+  }
   krav <- c("Län", "Gröda", "Gröda_namn", "Variabel_namn",
             "År", "value", "value_status")
   data <- dplyr::bind_rows(lapply(names(tabeller), function(grupp) {
@@ -79,12 +83,14 @@ gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L) {
                                     group = .data[["Gröda_namn"]])) +
       ggplot2::geom_hline(yintercept = 100, colour = "grey75", linewidth = .35) +
       ggplot2::geom_line(data = function(x) x[!is.na(x$index), , drop = FALSE],
-                         linewidth = .65) +
-      ggplot2::geom_point(na.rm = TRUE, size = 1) +
-      ggplot2::geom_text(data = slutpunkter,
+                         linewidth = .95) +
+      ggplot2::geom_point(na.rm = TRUE, size = 2) +
+      ggrepel::geom_text_repel(data = slutpunkter,
                          ggplot2::aes(label = .data$etikett),
-                         hjust = -0.08, size = 2.7, show.legend = FALSE,
-                         check_overlap = TRUE) +
+                         direction = "y", hjust = 0, nudge_x = .45,
+                         box.padding = .25, point.padding = .15,
+                         max.overlaps = Inf, size = 2.7,
+                         show.legend = FALSE, seed = 42) +
       ggplot2::coord_cartesian(clip = "off") +
       ggplot2::facet_wrap(~ matt, ncol = 1, scales = "free_y") +
       ggplot2::scale_x_continuous(breaks = seq(basar, slut_ar, by = 3),
@@ -98,10 +104,9 @@ gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L) {
           "Olika grödor kan ha olika basår; jämför därför främst förändring inom varje kurva."
         )
       ) +
-      ggplot2::theme_minimal(base_size = 11) +
-      ggplot2::theme(legend.position = "bottom",
-                     plot.margin = ggplot2::margin(5.5, 20, 5.5, 5.5),
-                     panel.grid.minor = ggplot2::element_blank())
+      gronsak_skala_farg() +
+      gronsak_tema() +
+      ggplot2::theme(plot.margin = ggplot2::margin(6, 20, 6, 6))
   })
   names(figurer) <- names(tabeller)
   list(figurer = figurer, figur = figurer[[1]], underlag = underlag,
