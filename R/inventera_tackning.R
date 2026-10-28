@@ -47,8 +47,8 @@ gronsak_inventera_tackning <- function(tabeller, startar = 2002L, slutar = 2025L
       senaste_riksar = if (any(.data$riket_observerat)) max(.data$ar[.data$riket_observerat]) else NA_integer_,
       lansar = sum(.data$lan_observerade > 0L),
       senaste_lansar = if (any(.data$lan_observerade > 0L)) max(.data$ar[.data$lan_observerade > 0L]) else NA_integer_,
-      lan_2023 = sum(.data$lan_observerade[.data$ar == 2023L]),
-      sekretess_2023 = sum(.data$lan_sekretess[.data$ar == 2023L]),
+      lan_2023 = sum(.data$lan_observerade[.data$ar == 2023L], na.rm = TRUE),
+      sekretess_2023 = sum(.data$lan_sekretess[.data$ar == 2023L], na.rm = TRUE),
       .groups = "drop"
     ) |>
     dplyr::arrange(.data$tabell, .data[["Gröda_namn"]], .data[["Variabel_namn"]])
