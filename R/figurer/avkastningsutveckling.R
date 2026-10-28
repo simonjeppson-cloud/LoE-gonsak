@@ -4,7 +4,9 @@ print.gronsak_avkastning_figur <- function(x, ...) {
   grid::grid.draw(x)
   invisible(x)
 }
-gronsak_avkastning_figurer <- function(underlag) {
+gronsak_avkastning_figurer <- function(underlag, figur_id = "STR-02",
+                                      rubrik = "Avkastningsutveckling",
+                                      matt = matt, fotnot = NULL) {
   krav <- c("grupp", "figurgrupp", "visa_i_figur", "Gröda_namn",
             "ar", "avkastning", "enhet", "ordning", "gruppordning")
   stopifnot(all(krav %in% names(underlag)))
@@ -54,7 +56,7 @@ gronsak_avkastning_figurer <- function(underlag) {
       grid::unit(.65, "cm"))
     fig <- gtable::gtable(widths = grid::unit(1, "null"), heights = radh)
     fig <- gtable::gtable_add_grob(fig,
-      grid::textGrob(paste("Avkastningsutveckling –", figurgrupp),
+      grid::textGrob(paste(rubrik, "–", figurgrupp),
         x = .02, just = "left", gp = grid::gpar(fontfamily = "Times New Roman",
           fontface = "bold", fontsize = 12)), t = 1, l = 1)
     for (j in seq_len(n)) {
@@ -69,7 +71,7 @@ gronsak_avkastning_figurer <- function(underlag) {
     }
     fig <- gtable::gtable_add_grob(fig,
       grid::textGrob(
-        if (grupp == "bar")
+        if (!is.null(fotnot)) fotnot else if (grupp == "bar")
           "Jordbruksverket, riksuppgifter. Skörd per hektar totalareal; endast observerade värden."
         else "Jordbruksverket, riksuppgifter. Endast observerade skörde- och arealvärden.",
         x = .02, just = "left",
@@ -78,7 +80,7 @@ gronsak_avkastning_figurer <- function(underlag) {
     class(fig) <- c("gronsak_avkastning_figur", class(fig))
     nyckel <- paste(grupp, figurgrupp, sep = "__")
     figurer[[nyckel]] <- fig
-    metadata[[nyckel]] <- data.frame(figur_id = "STR-02",
+    metadata[[nyckel]] <- data.frame(figur_id = figur_id,
       odlingsgrupp = grupp, figurgrupp = figurgrupp, matt = "Avkastning",
       enhet = enheter, forsta_ar = start, sista_ar = slut,
       grodor = paste(grodor$Gröda_namn, collapse = "; "),
