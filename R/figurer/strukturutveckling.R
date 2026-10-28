@@ -50,10 +50,13 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
         p <- ggplot2::ggplot(del, ggplot2::aes(x = .data$ar, y = .data$varde)) +
           ggplot2::geom_line(colour = "#087EBD", linewidth = 1.0) +
           ggplot2::geom_point(colour = "#E66B32", size = 2.0) +
-          ggplot2::geom_text(
+          ggplot2::geom_label(
             data = sist, ggplot2::aes(label = .data$etikett),
-            hjust = 1.08, vjust = -0.8,
-            size = 10 / ggplot2::.pt, colour = "#075A8C"
+            hjust = 1.04, vjust = -0.7,
+            size = 9 / ggplot2::.pt, colour = "#333333",
+            fill = scales::alpha("white", 0.82),
+            label.size = 0, label.padding = grid::unit(0.10, "lines"),
+            show.legend = FALSE
           ) +
           ggplot2::scale_x_continuous(
             limits = c(basar, slut_ar),
