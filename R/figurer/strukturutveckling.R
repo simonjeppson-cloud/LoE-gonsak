@@ -85,7 +85,7 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
     radh <- grid::unit.c(grid::unit(0.85, "cm"), grid::unit(0.75, "cm"),
               rep(grid::unit(1, "null"), n), grid::unit(0.7, "cm"))
     kolb <- grid::unit.c(grid::unit(1, "null"), grid::unit(1, "null"),
-                         grid::unit(2.8, "cm"))
+                         grid::unit(0.85, "cm"))
     figur <- gtable::gtable(widths = kolb, heights = radh)
     figur <- gtable::gtable_add_grob(
       figur,
@@ -118,7 +118,7 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
       }
       namnbox <- grid::grobTree(
         grid::rectGrob(gp = grid::gpar(fill = "#F3F5F6", col = NA)),
-        grid::textGrob(grodor[[j]], x = 0.5,
+        grid::textGrob(grodor[[j]], x = 0.5, rot = 90,
                        gp = grid::gpar(fontfamily = "Times New Roman",
                                        fontface = "bold", fontsize = 9))
       )
