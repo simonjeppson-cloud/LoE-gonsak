@@ -82,7 +82,7 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
 
     # Sätt ihop panelerna som separata gtable-grobs.
     # Detta undviker grid.grabExpr som återanvände samma panel på alla platser.
-    radh <- c(grid::unit(0.85, "cm"), grid::unit(0.75, "cm"),
+    radh <- grid::unit.c(grid::unit(0.85, "cm"), grid::unit(0.75, "cm"),
               rep(grid::unit(1, "null"), n), grid::unit(0.7, "cm"))
     kolb <- grid::unit.c(grid::unit(1, "null"), grid::unit(1, "null"),
                          grid::unit(2.8, "cm"))
