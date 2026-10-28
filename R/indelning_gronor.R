@@ -94,9 +94,11 @@ gronsak_indelning <- function(underlag, fil = "config/figurgrupper.csv") {
   if (anyDuplicated(nyckel)) stop("Dubblerade grödkoder i figurgrupper.csv")
   if (anyNA(cfg$figurgrupp) || any(!nzchar(trimws(cfg$figurgrupp))))
     stop("Alla grödor måste ha en figurgrupp i figurgrupper.csv")
-  if (anyNA(cfg$visa_i_figur) ||
-      any(!cfg$visa_i_figur %in% c("TRUE", "FALSE")))
-    stop("visa_i_figur måste vara TRUE eller FALSE för varje gröda")
+  # Svensk Excel kan skriva logiska värden som SANT/FALSKT.
+  visa <- toupper(trimws(cfg$visa_i_figur))
+  if (anyNA(visa) || any(!visa %in% c("TRUE", "FALSE", "SANT", "FALSKT")))
+    stop("visa_i_figur måste vara TRUE/FALSE eller SANT/FALSKT för varje gröda")
+  cfg$visa_i_figur <- ifelse(visa %in% c("TRUE", "SANT"), "TRUE", "FALSE")
   kod <- paste(underlag$grupp, as.character(underlag[["Gröda"]]), sep = "\r")
   pos <- match(kod, nyckel)
   if (anyNA(pos)) {
