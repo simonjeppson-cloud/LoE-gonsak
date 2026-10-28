@@ -41,11 +41,18 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
       ggplot2::geom_text(data = sista, ggplot2::aes(label = .data$etikett),
                          hjust = -0.1, size = 11 / ggplot2::.pt,
                          colour = "#075A8C") +
-      ggplot2::facet_wrap(~groda + panel, ncol = 2, scales = "free_y",
-                          labeller = ggplot2::labeller(
-                            groda = ggplot2::label_value,
-                            panel = function(z) rep("", length(z))
-                          ), strip.position = "top") +
+      ggplot2::facet_wrap(
+        ~groda + panel, ncol = 2, scales = "free_y",
+        strip.position = "right",
+        labeller = function(labels) {
+          # facet_wrap kräver en LISTA av etikettvektorer,
+          # en etikett per panel; annars uppstår extra strip-rader.
+          list(label = ifelse(
+            as.character(labels$panel) == "Odlad areal/yta",
+            as.character(labels$groda), ""
+          ))
+        }
+      ) +
       ggplot2::scale_x_continuous(
         breaks = seq(basar, slut_ar, by = 6),
         expand = ggplot2::expansion(mult = c(.03, .38))) +
@@ -61,8 +68,8 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
       ) +
       gronsak_tema() +
       ggplot2::theme(
-        strip.background = ggplot2::element_blank(),
-        strip.text = ggplot2::element_text(face = "bold", hjust = 0),
+        strip.background = ggplot2::element_rect(fill = "#F3F5F6", colour = NA),
+        strip.text = ggplot2::element_text(face = "bold", size = 9),
         panel.spacing.y = grid::unit(1, "lines"),
         plot.margin = ggplot2::margin(8, 28, 8, 8)
       )
