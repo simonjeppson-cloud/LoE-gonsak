@@ -61,6 +61,19 @@ gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L) {
   figurer <- lapply(names(tabeller), function(grupp) {
     d <- dplyr::filter(underlag, .data$grupp == .env$grupp,
                        .data[["Gröda_namn"]] != "Totalt")
+    slutpunkter <- d |>
+      dplyr::filter(!is.na(.data$index), !is.na(.data$varde)) |>
+      dplyr::group_by(.data[["Gröda_namn"]], .data$matt) |>
+      dplyr::slice_max(.data$ar, n = 1, with_ties = FALSE) |>
+      dplyr::ungroup() |>
+      dplyr::mutate(
+        etikett = format(round(.data$varde, 0), big.mark = " ", trim = TRUE,
+                         scientific = FALSE),
+        etikett = paste0(.data$etikett,
+                         dplyr::if_else(.data$matt == "Antal företag", " företag",
+                           dplyr::if_else(grepl("kvm|m2|m²", .data[["Variabel_namn"]],
+                                                      ignore.case = TRUE), " m²", " ha")))
+      )
     ggplot2::ggplot(d, ggplot2::aes(x = .data$ar, y = .data$index,
                                     colour = .data[["Gröda_namn"]],
                                     group = .data[["Gröda_namn"]])) +
@@ -68,8 +81,13 @@ gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L) {
       ggplot2::geom_line(data = function(x) x[!is.na(x$index), , drop = FALSE],
                          linewidth = .65) +
       ggplot2::geom_point(na.rm = TRUE, size = 1) +
+      ggplot2::geom_text(data = slutpunkter,
+                         ggplot2::aes(label = .data$etikett),
+                         hjust = -0.08, size = 2.7, show.legend = FALSE,
+                         check_overlap = TRUE) +
+      ggplot2::coord_cartesian(clip = "off") +
       ggplot2::facet_wrap(~ matt, ncol = 1, scales = "free_y") +
-      ggplot2::scale_x_continuous(breaks = seq(basar, slut_ar, by = 3)) +
+      ggplot2::scale_x_continuous(breaks = seq(basar, slut_ar, by = 3),\n                                  expand = ggplot2::expansion(mult = c(.02, .28))) +
       ggplot2::labs(
         title = paste("Strukturutveckling:", if (grupp %in% names(rubriker)) rubriker[[grupp]] else grupp),
         subtitle = "Index = 100 vid första observerade positiva värdet för varje gröda",
@@ -80,7 +98,7 @@ gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L) {
         )
       ) +
       ggplot2::theme_minimal(base_size = 11) +
-      ggplot2::theme(legend.position = "bottom",
+      ggplot2::theme(legend.position = "bottom",\n                     plot.margin = ggplot2::margin(5.5, 20, 5.5, 5.5),
                      panel.grid.minor = ggplot2::element_blank())
   })
   names(figurer) <- names(tabeller)
