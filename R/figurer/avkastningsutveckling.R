@@ -60,12 +60,12 @@ gronsak_avkastning_figurer <- function(underlag, figur_id = "STR-02",
         x = .02, just = "left", gp = grid::gpar(fontfamily = "Times New Roman",
           fontface = "bold", fontsize = 12)), t = 1, l = 1)
     for (j in seq_len(n)) {
-      rubrik <- grid::grobTree(
+      grodrubrik <- grid::grobTree(
         grid::rectGrob(gp = grid::gpar(fill = "#F3F5F6", col = NA)),
         grid::textGrob(grodor$Gröda_namn[j],
           gp = grid::gpar(fontfamily = "Times New Roman",
                           fontface = "bold", fontsize = 11)))
-      fig <- gtable::gtable_add_grob(fig, rubrik, t = 2L * j, l = 1)
+      fig <- gtable::gtable_add_grob(fig, grodrubrik, t = 2L * j, l = 1)
       fig <- gtable::gtable_add_grob(fig, ggplot2::ggplotGrob(paneler[[j]]),
         t = 2L * j + 1L, l = 1, clip = "off")
     }
