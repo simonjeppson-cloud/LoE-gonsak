@@ -64,9 +64,10 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
             expand = ggplot2::expansion(mult = c(.02, .04))
           ) +
           ggplot2::scale_y_continuous(
+            limits = c(0, NA),
             labels = function(v) format(v, big.mark = " ", trim = TRUE,
                                         scientific = FALSE),
-            expand = ggplot2::expansion(mult = c(.12, .22))
+            expand = ggplot2::expansion(mult = c(0, .18))
           ) +
           ggplot2::labs(x = NULL, y = NULL) +
           gronsak_tema() +
