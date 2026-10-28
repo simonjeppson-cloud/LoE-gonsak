@@ -22,9 +22,12 @@ gronsak_berakna_str05 <- function(tabeller, basar = 2002L, slut_ar = 2025L) {
     do.call(rbind,lapply(seq_along(vals),function(j) {
       v <- vals[[j]]
       v[!is.finite(v) | v < 0 | x$ar < k$bas_ar] <- NA_real_
+      # Behåll faktiskt måttvärde för etikett vid sista observationen.
+      faktiskt <- v
+      if (j == 3L) faktiskt <- v * if (k$grupp == "vaxthus") 1000 else 1
       data.frame(grupp=k$grupp,Gröda=k$Gröda,Gröda_namn=k$Gröda_namn,
                  ar=x$ar,bas_ar=k$bas_ar,matt=names(vals)[j],
-                 index=100*v/basvals[j])
+                 index=100*v/basvals[j], faktiskt=faktiskt)
     }))
   })
   do.call(rbind,pieces)
