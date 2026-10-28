@@ -42,7 +42,10 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
                          hjust = -0.1, size = 11 / ggplot2::.pt,
                          colour = "#075A8C") +
       ggplot2::facet_wrap(~groda + panel, ncol = 2, scales = "free_y",
-                          labeller = ggplot2::labeller(\n                            groda = ggplot2::label_value,\n                            panel = function(z) rep("", length(z))\n                          ), strip.position = "top") +
+                          labeller = ggplot2::labeller(
+                            groda = ggplot2::label_value,
+                            panel = function(z) rep("", length(z))
+                          ), strip.position = "top") +
       ggplot2::scale_x_continuous(
         breaks = seq(basar, slut_ar, by = 6),
         expand = ggplot2::expansion(mult = c(.03, .38))) +
