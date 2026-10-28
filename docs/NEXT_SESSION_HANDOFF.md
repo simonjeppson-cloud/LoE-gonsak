@@ -159,3 +159,7 @@ Bilder: `figurer/STR-05_produktivitet/bilder/`; katalog: `figurer/STR-05_produkt
 - Behåll tydliga STR-ID:n, egna konfigurationer och självständiga körfunktioner.
 - Rätta fel direkt i repo och ge korta, exakta `git pull`/`source`-kommandon.
 - Prioritera användarens sakfråga framför fler funktioner eller mer arkitektur.
+
+## 10. Senaste tillägg: faktiska slutvärden i STR-05 (2026-10-28)
+
+Efter att användaren granskat separata bilder för isbergssallat och övrig sallat önskades **faktiskt värde vid sista observerade punkten i varje panel**. Kodändringar i `berakna_str05.R` och `str05_figurer.R` bevarar råkvoten `faktiskt` och visar etiketter med värde, enhet och årtal. Antal företag: företag; areal/företag: ha eller m² för växthus; skörd/areal: ton/ha eller kg/m² för växthus (konvertering ×1000 från ton/m²); skörd/företag: ton/företag. Sista året väljs separat för varje indikator. **Ännu inte verifierat i användarens RStudio**; kontrollera att etiketterna inte krockar med linjer eller panelkanter, och att beräknade slutvärden stämmer med JV-observationerna. Indexserierna är oförändrade.
