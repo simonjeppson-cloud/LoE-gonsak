@@ -18,15 +18,42 @@ gronsak_str05_figurer <- function(d, basar = 2002L, slut_ar = 2025L) {
       if (k$grupp == "vaxthus") "Skörd per m²" else "Skörd per hektar",
       "Skörd per företag"))
     if (anyNA(z$matt)) stop("Okänt STR-05-mått: ", k$Gröda_namn)
+    # En etikett per panel: sista faktiskt observerade värde och dess år.
+    sista <- do.call(rbind, lapply(split(z, z$matt, drop = TRUE), function(q) {
+      q <- q[order(q$ar), , drop = FALSE]
+      q[nrow(q), , drop = FALSE]
+    }))
+    formatera <- function(v, digits = 1L) {
+      formatC(v, format = "f", digits = digits, big.mark = " ", decimal.mark = ",")
+    }
+    sista$etikett <- vapply(seq_len(nrow(sista)), function(j) {
+      q <- sista[j, ]
+      n <- as.character(q$matt)
+      if (n == "Antal företag") return(paste0(formatera(q$faktiskt, 0L), " företag (", q$ar, ")"))
+      if (n == "Areal per företag") {
+        unit <- if (k$grupp == "vaxthus") "m²/företag" else "ha/företag"
+        return(paste0(formatera(q$faktiskt), " ", unit, " (", q$ar, ")"))
+      }
+      if (n %in% c("Skörd per hektar", "Skörd per m²")) {
+        unit <- if (k$grupp == "vaxthus") "kg/m²" else "ton/ha"
+        return(paste0(formatera(q$faktiskt), " ", unit, " (", q$ar, ")"))
+      }
+      paste0(formatera(q$faktiskt), " ton/företag (", q$ar, ")")
+    }, character(1))
     p <- ggplot2::ggplot(z, ggplot2::aes(x = .data$ar, y = .data$index)) +
       ggplot2::geom_hline(yintercept = 100, colour = "grey75", linewidth = .4) +
       ggplot2::geom_line(colour = "#087EBD", linewidth = .9) +
       ggplot2::geom_point(colour = "#E66B32", size = 1.7) +
+      ggplot2::geom_label(data = sista,
+        ggplot2::aes(label = .data$etikett),
+        hjust = 1, vjust = -0.55, size = 2.6,
+        family = "Times New Roman", colour = "#243746",
+        fill = "white", label.size = 0, show.legend = FALSE) +
       ggplot2::facet_wrap(~ matt, ncol = 2, scales = "free_y", drop = FALSE) +
       ggplot2::scale_x_continuous(limits = c(basar, slut_ar),
         breaks = pretty(c(basar, slut_ar), n = 5)) +
       ggplot2::scale_y_continuous(limits = c(0, NA),
-        expand = ggplot2::expansion(mult = c(0, .1))) +
+        expand = ggplot2::expansion(mult = c(0, .22))) +
       ggplot2::labs(
         title = paste("Struktur och produktivitet –", k$Gröda_namn),
         subtitle = paste(k$figurgrupp, "· Basår:", bas, "(index 100)"),
