@@ -44,6 +44,9 @@ gronsak_skapa_gruppconfig <- function(tabeller,
        startsWith(tolower(rader$groda_namn), paste0(tolower(stam), " ")))
     rader$visa_i_figur[under] <- "FALSE"
   }
+  rader$gruppordning <- match(paste(rader$grupp, rader$figurgrupp),
+    unique(paste(rader$grupp, rader$figurgrupp)))
+  rader$ordning <- ave(seq_len(nrow(rader)), paste(rader$grupp, rader$figurgrupp), FUN = seq_along)
   if (file.exists(fil)) stop("Konfigurationen finns redan: ", fil)
   dir.create(dirname(fil), recursive = TRUE, showWarnings = FALSE)
   utils::write.csv2(rader, fil, row.names = FALSE, na = "")
@@ -62,6 +65,31 @@ gronsak_indelning <- function(underlag, fil = "config/figurgrupper.csv") {
   krav <- c("grupp", "groda_kod", "groda_namn",
             "figurgrupp", "visa_i_figur")
   if (!all(krav %in% names(cfg))) stop("Kolumner saknas i figurgrupper.csv")
+  # Uppgradera äldre konfiguration utan att förlora redaktionella ändringar.
+  # Sortering är alfabetisk endast vid första initiering av ordningskolumner.
+  if (!all(c("ordning", "gruppordning") %in% names(cfg))) {
+    cfg <- cfg[order(cfg$grupp, cfg$figurgrupp, cfg$groda_namn), , drop = FALSE]
+    if (!"ordning" %in% names(cfg))
+      cfg$ordning <- as.character(ave(seq_len(nrow(cfg)),
+        paste(cfg$grupp, cfg$figurgrupp), FUN = seq_along))
+    if (!"gruppordning" %in% names(cfg))
+      cfg$gruppordning <- as.character(match(
+        paste(cfg$grupp, cfg$figurgrupp),
+        unique(paste(cfg$grupp, cfg$figurgrupp))))
+    utils::write.csv2(cfg, fil, row.names = FALSE, na = "")
+    message("Ordningskolumner tillagda i ", fil)
+  }
+  cfg$ordning <- suppressWarnings(as.integer(cfg$ordning))
+  cfg$gruppordning <- suppressWarnings(as.integer(cfg$gruppordning))
+  if (anyNA(cfg$ordning) || any(cfg$ordning < 1L) ||
+      anyNA(cfg$gruppordning) || any(cfg$gruppordning < 1L))
+    stop("ordning och gruppordning måste vara positiva heltal")
+  gruppnyckel <- paste(cfg$grupp, cfg$figurgrupp)
+  if (any(vapply(split(cfg$gruppordning, gruppnyckel),
+                 function(v) length(unique(v)) != 1L, logical(1))))
+    stop("Samma figurgrupp måste ha samma gruppordning på alla rader")
+  if (anyDuplicated(paste(gruppnyckel, cfg$ordning)))
+    stop("Dubblerad ordning inom en figurgrupp")
   nyckel <- paste(cfg$grupp, cfg$groda_kod, sep = "\r")
   if (anyDuplicated(nyckel)) stop("Dubblerade grödkoder i figurgrupper.csv")
   if (anyNA(cfg$figurgrupp) || any(!nzchar(trimws(cfg$figurgrupp))))
@@ -81,5 +109,7 @@ gronsak_indelning <- function(underlag, fil = "config/figurgrupper.csv") {
     stop("Grödnamn skiljer sig från config; granska koder och namn.")
   underlag$figurgrupp <- cfg$figurgrupp[pos]
   underlag$visa_i_figur <- cfg$visa_i_figur[pos] == "TRUE"
+  underlag$ordning <- cfg$ordning[pos]
+  underlag$gruppordning <- cfg$gruppordning[pos]
   underlag
 }
