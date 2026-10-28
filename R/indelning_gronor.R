@@ -12,16 +12,43 @@ gronsak_skapa_gruppconfig <- function(tabeller,
                       stringsAsFactors = FALSE))
   }))
   rader <- rader[order(rader$grupp, rader$groda_namn), , drop = FALSE]
-  rader$figurgrupp <- ifelse(rader$grupp == "friland", "",
-                            ifelse(rader$grupp == "vaxthus", "Växthus",
-                                   ifelse(rader$grupp == "bar", "Bär", "Frukt")))
-  rader$visa_i_figur <- ifelse(tolower(trimws(rader$groda_namn)) == "totalt",
-                              "FALSE", "TRUE")
+  # Förifylld indelning. Koder och namn hämtas från faktiska tabeller.
+  namn <- tolower(rader$groda_namn)
+  rader$figurgrupp <- ifelse(rader$grupp == "friland",
+                             "Övriga frilandsgrönsaker",
+                             ifelse(rader$grupp == "vaxthus", "Växthus",
+                                    ifelse(rader$grupp == "bar", "Bär", "Frukt")))
+  regler <- list(
+    "Kålväxter" = "kål|broccoli|pak choi",
+    "Rotfrukter" = "morot|rödbet|gulbet|polkabet|palsternack|rotselleri|rotpersilj|rättik|rädisa|kålrot|majrova",
+    "Lökväxter" = "lök|purjo",
+    "Bladgrönsaker" = "sallat|sallad|spenat|mangold|rucola|ruccola|blad",
+    "Baljväxter" = "ärt|böna",
+    "Gurkväxter" = "gurk|pumpa|squash|zucchini"
+  )
+  for (kategori in names(regler)) {
+    hit <- rader$grupp == "friland" &
+      grepl(regler[[kategori]], namn) &
+      rader$figurgrupp == "Övriga frilandsgrönsaker"
+    rader$figurgrupp[hit] <- kategori
+  }
+  rader$visa_i_figur <- ifelse(namn == "totalt", "FALSE", "TRUE")
+  # Växthus: när en totalpost finns, dölj dess namngivna delposter.
+  v <- rader$grupp == "vaxthus"
+  totalnamn <- rader$groda_namn[v & grepl(",?\\\\s+totalt$", namn, perl = TRUE)]
+  for (tn in totalnamn) {
+    stam <- trimws(sub(",?\\\\s+totalt$", "", tn, ignore.case = TRUE, perl = TRUE))
+    under <- v & rader$groda_namn != tn &
+      (tolower(rader$groda_namn) == tolower(stam) |
+       startsWith(tolower(rader$groda_namn), paste0(tolower(stam), ", ")) |
+       startsWith(tolower(rader$groda_namn), paste0(tolower(stam), " ")))
+    rader$visa_i_figur[under] <- "FALSE"
+  }
   if (file.exists(fil)) stop("Konfigurationen finns redan: ", fil)
   dir.create(dirname(fil), recursive = TRUE, showWarnings = FALSE)
   utils::write.csv2(rader, fil, row.names = FALSE, na = "")
-  message("Granska alla rader i ", fil,
-          ". Fyll figurgrupp för friland och välj totalposter för växthus.")
+  message("Förifylld konfiguration skapad: ", fil,
+          ". Kontrollera särskilt Övriga och växthusens totalposter.")
   invisible(rader)
 }
 
