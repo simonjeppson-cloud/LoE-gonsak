@@ -88,15 +88,14 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
     # Detta undviker grid.grabExpr som återanvände samma panel på alla platser.
     # Luft mellan grödraderna så att y-axlarnas 0 och nästa rads
     # översta skalvärde inte hamnar för nära varandra.
-    panelrader <- rep(grid::unit(1, "null"), n)
+    # Bygg grid-enheter direkt; as.vector() skulle annars förlora unit-klassen.
+    radindelning <- grid::unit(1, "null")
     if (n > 1L) {
-      mellanrum <- rep(grid::unit(0.38, "cm"), n - 1L)
-      radindelning <- do.call(grid::unit.c, as.list(
-        as.vector(rbind(panelrader[-n], mellanrum))
-      ))
-      radindelning <- grid::unit.c(radindelning, panelrader[n])
-    } else {
-      radindelning <- panelrader
+      for (rad in seq_len(n - 1L)) {
+        radindelning <- grid::unit.c(
+          radindelning, grid::unit(0.38, "cm"), grid::unit(1, "null")
+        )
+      }
     }
     radh <- grid::unit.c(grid::unit(0.85, "cm"), grid::unit(0.75, "cm"),
                          radindelning, grid::unit(0.7, "cm"))
