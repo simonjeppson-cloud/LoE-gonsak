@@ -29,6 +29,15 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
       format(round(sista$varde), big.mark = " ", trim = TRUE, scientific = FALSE),
       sista$enhet
     )
+    # Enhetsrubrik för högra kolumnen: växthusyta anges i m², övrigt i ha.
+    areal_enhet <- if (any(grepl("kvm|m2|m²",
+                       x$Variabel_namn[x$matt == "Odlad areal/yta"],
+                       ignore.case = TRUE))) "m²" else "ha"
+    # Endast vänster panel visar grödans namn; den högra lämnas utan dubblett.
+    radetikett <- function(labels) {
+      ifelse(as.character(labels$panel) == "Antal företag",
+             as.character(labels$groda), "")
+    }
     nyckel <- paste(grupp, figurgrupp, sep = "__")
     figurer[[nyckel]] <- ggplot2::ggplot(
       x, ggplot2::aes(x = .data$ar, y = .data$varde)) +
@@ -38,7 +47,7 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
                          hjust = -0.1, size = 11 / ggplot2::.pt,
                          colour = "#075A8C") +
       ggplot2::facet_wrap(~groda + panel, ncol = 2, scales = "free_y",
-                          strip.position = "top") +
+                          labeller = radetikett, strip.position = "top") +
       ggplot2::scale_x_continuous(
         breaks = seq(basar, slut_ar, by = 6),
         expand = ggplot2::expansion(mult = c(.03, .38))) +
@@ -47,14 +56,18 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
                                     scientific = FALSE),
         expand = ggplot2::expansion(mult = c(.1, .16))) +
       ggplot2::labs(
-        title = paste("Strukturutveckling:", figurgrupp),
-        subtitle = "Antal företag (vänster) och odlad areal/yta (höger) – separata y-skalor",
+        title = paste("Strukturutveckling –", figurgrupp),
+        subtitle = paste0("Antal företag (vänster)   |   Odlad areal (", areal_enhet, ") (höger)"),
         x = NULL, y = NULL,
         caption = "Observerade riksuppgifter. Företag kan förekomma under flera grödor; delmängder summeras inte."
       ) +
       gronsak_tema() +
-      ggplot2::theme(panel.spacing.y = grid::unit(1, "lines"),
-                     plot.margin = ggplot2::margin(8, 28, 8, 8))
+      ggplot2::theme(
+        strip.background = ggplot2::element_blank(),
+        strip.text = ggplot2::element_text(face = "bold", hjust = 0),
+        panel.spacing.y = grid::unit(1, "lines"),
+        plot.margin = ggplot2::margin(8, 28, 8, 8)
+      )
     metadata[[nyckel]] <- data.frame(
       figur_id = "STR-01", odlingsgrupp = grupp, figurgrupp = figurgrupp,
       matt = "Antal företag + Odlad areal/yta", enhet = "företag + ha/m²",
