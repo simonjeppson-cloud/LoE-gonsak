@@ -60,11 +60,29 @@ gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L) {
     ) |>
     dplyr::ungroup()
 
+  if (!exists("gronsak_indelning", mode = "function")) {
+    stop('Kör source("R/indelning_gronor.R") före figur_struktur.R')
+  }
+  underlag <- gronsak_indelning(underlag)
+  indelningskontroll <- underlag |>
+    dplyr::distinct(.data$grupp, .data[["Gröda_namn"]],
+                    .data$figurgrupp, .data$visa_i_figur) |>
+    dplyr::arrange(.data$grupp, .data$figurgrupp, .data[["Gröda_namn"]])
+
   rubriker <- c(friland = "Frilandsgrönsaker", vaxthus = "Växthus",
                 bar = "Bär", frukt = "Frukt")
-  figurer <- lapply(names(tabeller), function(grupp) {
+  figurval <- indelningskontroll |>
+    dplyr::filter(.data$visa_i_figur) |>
+    dplyr::distinct(.data$grupp, .data$figurgrupp)
+  figurnamn <- ifelse(figurval$grupp == "friland",
+                      paste0("friland_", make.names(figurval$figurgrupp)),
+                      figurval$grupp)
+  figurer <- lapply(seq_len(nrow(figurval)), function(i) {
+    grupp <- figurval$grupp[[i]]
+    delgrupp <- figurval$figurgrupp[[i]]
     d <- dplyr::filter(underlag, .data$grupp == .env$grupp,
-                       .data[["Gröda_namn"]] != "Totalt")
+                       .data$figurgrupp == .env$delgrupp,
+                       .data$visa_i_figur)
     slutpunkter <- d |>
       dplyr::filter(!is.na(.data$index), !is.na(.data$varde)) |>
       dplyr::group_by(.data[["Gröda_namn"]], .data$matt) |>
@@ -96,7 +114,7 @@ gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L) {
       ggplot2::scale_x_continuous(breaks = seq(basar, slut_ar, by = 3),
                                   expand = ggplot2::expansion(mult = c(.02, .28))) +
       ggplot2::labs(
-        title = paste("Strukturutveckling:", if (grupp %in% names(rubriker)) rubriker[[grupp]] else grupp),
+        title = paste("Strukturutveckling:", if (grupp == "friland") delgrupp else if (grupp %in% names(rubriker)) rubriker[[grupp]] else grupp),
         subtitle = "Index = 100 vid första observerade positiva värdet för varje gröda",
         x = NULL, y = "Index", colour = "Gröda",
         caption = paste(
@@ -108,7 +126,7 @@ gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L) {
       gronsak_tema() +
       ggplot2::theme(plot.margin = ggplot2::margin(6, 20, 6, 6))
   })
-  names(figurer) <- names(tabeller)
+  names(figurer) <- figurnamn
   list(figurer = figurer, figur = figurer[[1]], underlag = underlag,
-       variabler = variabler)
+       variabler = variabler, indelningskontroll = indelningskontroll)
 }
