@@ -16,17 +16,16 @@ gronsak_exportera_struktur <- function(resultat, mapp = "figurer/struktur",
   katalog$skapad_datum <- as.character(Sys.Date())
   for (i in seq_len(nrow(katalog))) {
     rad <- katalog[i, , drop = FALSE]
-    nyckel <- paste(rad$odlingsgrupp, rad$figurgrupp, rad$matt, sep = "__")
+    nyckel <- paste(rad$odlingsgrupp, rad$figurgrupp, sep = "__")
     fig <- resultat$figurer[[nyckel]]
     if (is.null(fig)) stop("Figur saknas för ", nyckel)
-    matt_slug <- if (rad$matt == "Antal företag") "foretag" else
-      if (rad$enhet == "m²") "yta" else "areal"
+    matt_slug <- "foretag-areal"
     fil <- paste0("STR-01_", slug(rad$odlingsgrupp), "_",
                   slug(rad$figurgrupp), "_", matt_slug, "_",
                   rad$forsta_ar, "-", rad$sista_ar, ".png")
     sokvag <- file.path(mapp, fil)
     antal <- length(strsplit(rad$grodor, "; ", fixed = TRUE)[[1]])
-    hojd_cm <- max(10, 4.4 * antal + 3)
+    hojd_cm <- max(12, 4.4 * antal + 3)
     ggplot2::ggsave(sokvag, plot = fig, width = bredd_cm,
                     height = hojd_cm, units = "cm", dpi = dpi, bg = "white")
     katalog$filnamn[[i]] <- fil
