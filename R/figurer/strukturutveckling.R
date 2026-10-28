@@ -86,8 +86,21 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
 
     # Sätt ihop panelerna som separata gtable-grobs.
     # Detta undviker grid.grabExpr som återanvände samma panel på alla platser.
+    # Luft mellan grödraderna så att y-axlarnas 0 och nästa rads
+    # översta skalvärde inte hamnar för nära varandra.
+    panelrader <- rep(grid::unit(1, "null"), n)
+    if (n > 1L) {
+      mellanrum <- rep(grid::unit(0.38, "cm"), n - 1L)
+      radindelning <- do.call(grid::unit.c, as.list(
+        as.vector(rbind(panelrader[-n], mellanrum))
+      ))
+      radindelning <- grid::unit.c(radindelning, panelrader[n])
+    } else {
+      radindelning <- panelrader
+    }
     radh <- grid::unit.c(grid::unit(0.85, "cm"), grid::unit(0.75, "cm"),
-              rep(grid::unit(1, "null"), n), grid::unit(0.7, "cm"))
+                         radindelning, grid::unit(0.7, "cm"))
+    panelrad <- function(j) 2L * j + 1L
     kolb <- grid::unit.c(grid::unit(1, "null"), grid::unit(1, "null"),
                          grid::unit(0.85, "cm"))
     figur <- gtable::gtable(widths = kolb, heights = radh)
@@ -115,7 +128,7 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
         pg <- paneler[[(j - 1L) * 2L + k]]
         if (!is.null(pg)) {
           figur <- gtable::gtable_add_grob(
-            figur, pg, t = j + 2L, l = k,
+            figur, pg, t = panelrad(j), l = k,
             name = paste0("panel-", j, "-", k), clip = "off"
           )
         }
@@ -127,7 +140,7 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
                                        fontface = "bold", fontsize = 9))
       )
       figur <- gtable::gtable_add_grob(
-        figur, namnbox, t = j + 2L, l = 3,
+        figur, namnbox, t = panelrad(j), l = 3,
         name = paste0("groda-", j)
       )
     }
@@ -138,7 +151,7 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
         x = 0.02, just = "left",
         gp = grid::gpar(fontfamily = "Times New Roman", fontsize = 8)
       ),
-      t = n + 3L, l = 1, r = 3, name = "fotnot"
+      t = length(radh), l = 1, r = 3, name = "fotnot"
     )
     class(figur) <- c("gronsak_struktur_figur", class(figur))
     nyckel <- paste(grupp, figurgrupp, sep = "__")
