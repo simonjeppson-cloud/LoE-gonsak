@@ -35,9 +35,9 @@ gronsak_skapa_gruppconfig <- function(tabeller,
   rader$visa_i_figur <- ifelse(namn == "totalt", "FALSE", "TRUE")
   # Växthus: när en totalpost finns, dölj dess namngivna delposter.
   v <- rader$grupp == "vaxthus"
-  totalnamn <- rader$groda_namn[v & grepl(",?\\\\s+totalt$", namn, perl = TRUE)]
+  totalnamn <- rader$groda_namn[v & grepl(",?\\s+totalt$", namn, perl = TRUE)]
   for (tn in totalnamn) {
-    stam <- trimws(sub(",?\\\\s+totalt$", "", tn, ignore.case = TRUE, perl = TRUE))
+    stam <- trimws(sub(",?\\s+totalt$", "", tn, ignore.case = TRUE, perl = TRUE))
     under <- v & rader$groda_namn != tn &
       (tolower(rader$groda_namn) == tolower(stam) |
        startsWith(tolower(rader$groda_namn), paste0(tolower(stam), ", ")) |
