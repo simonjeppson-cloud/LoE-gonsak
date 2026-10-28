@@ -87,7 +87,8 @@ gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L) {
                          check_overlap = TRUE) +
       ggplot2::coord_cartesian(clip = "off") +
       ggplot2::facet_wrap(~ matt, ncol = 1, scales = "free_y") +
-      ggplot2::scale_x_continuous(breaks = seq(basar, slut_ar, by = 3),\n                                  expand = ggplot2::expansion(mult = c(.02, .28))) +
+      ggplot2::scale_x_continuous(breaks = seq(basar, slut_ar, by = 3),
+                                  expand = ggplot2::expansion(mult = c(.02, .28))) +
       ggplot2::labs(
         title = paste("Strukturutveckling:", if (grupp %in% names(rubriker)) rubriker[[grupp]] else grupp),
         subtitle = "Index = 100 vid första observerade positiva värdet för varje gröda",
@@ -98,7 +99,8 @@ gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L) {
         )
       ) +
       ggplot2::theme_minimal(base_size = 11) +
-      ggplot2::theme(legend.position = "bottom",\n                     plot.margin = ggplot2::margin(5.5, 20, 5.5, 5.5),
+      ggplot2::theme(legend.position = "bottom",
+                     plot.margin = ggplot2::margin(5.5, 20, 5.5, 5.5),
                      panel.grid.minor = ggplot2::element_blank())
   })
   names(figurer) <- names(tabeller)
