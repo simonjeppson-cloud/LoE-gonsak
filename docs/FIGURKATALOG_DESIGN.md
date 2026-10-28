@@ -39,12 +39,16 @@ Den lokala originalfilen är inte versionshanterad i GitHub-branchen;
 engångskopian skapas därför på användarens dator.
 
 CSV-formatet är semikolonseparerat (svensk Excel, `read.csv2`):
-`grupp;groda_kod;groda_namn;figurgrupp;visa_i_figur`.
+`grupp;groda_kod;groda_namn;figurgrupp;visa_i_figur;gruppordning;ordning`.
 - `grupp` och `groda_kod` identifierar en gröda entydigt.
 - `groda_namn` kontrolleras mot källdata för att upptäcka namnändringar.
 - `figurgrupp` kan redigeras fritt: nytt namn skapar ny figurgrupp.
 - `visa_i_figur` ska vara `TRUE` eller `FALSE`; `FALSE` exkluderar
   grödan **endast från denna figurtyp**, inte från data eller andra figurer.
+- `ordning` är ett positivt heltal och bestämmer panelraden uppifrån och ned inom figurgruppen.
+- `gruppordning` är ett positivt heltal som styr export- och katalogordning mellan bilder.
+- Ordningskolumnerna läggs till automatiskt i en äldre CSV första gången den läses, utan att ändra befintliga grupper eller visa/dölj-val. Ursprungligen används alfabetisk ordning.
+- Radordningen i Excel påverkar inte figurerna. Dubbla ordningsnummer inom en grupp och olika gruppordning inom samma grupp ger fel.
 - Dubblerade nycklar, saknade grödor och ogiltiga värden ger fel.
 - En gröda har i denna enkla modell en figurgrupp per figurtyp.
   Om samma gröda senare ska visas i flera grupper behöver modellen utökas
