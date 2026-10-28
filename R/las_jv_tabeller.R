@@ -45,8 +45,10 @@ gronsak_las_jv <- function(
   }
 
   # Ladda enbart de Core-moduler som läsgränssnittet behöver.
-  # Egen miljö undviker att skriva över objekt i analysens Global Environment.
-  core <- new.env(parent = baseenv())
+  # Egen miljö undviker att skriva över analysobjekt i Global Environment.
+  # globalenv() som parent ger Core åtkomst till standardpaket såsom utils::tail.
+  # Funktionen läser bara betrodda lokala Core-skript.
+  core <- new.env(parent = globalenv())
   moduler <- c(
     "metadata_cache.R",
     "observation_coverage_plan.R",
