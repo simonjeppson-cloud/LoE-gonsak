@@ -30,6 +30,15 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
       dplyr::pull(.data$Gröda_namn)
     n <- length(grodor)
     if (!n) next
+    # En gemensam x-axel per bild, från första till sista observerade året.
+    start_fig <- min(x$ar)
+    slut_fig <- max(x$ar)
+    ar_bryt <- if (slut_fig - start_fig <= 5L) {
+      seq(start_fig, slut_fig, by = 1L)
+    } else {
+      sort(unique(c(start_fig, pretty(c(start_fig, slut_fig), n = 5L), slut_fig)))
+    }
+    ar_bryt <- ar_bryt[ar_bryt >= start_fig & ar_bryt <= slut_fig]
 
     areal_enhet <- if (any(grepl("kvm|m2|m²",
                          x$Variabel_namn[x$matt == "Odlad areal/yta"],
@@ -63,8 +72,8 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
             show.legend = FALSE
           ) +
           ggplot2::scale_x_continuous(
-            limits = c(basar, slut_ar),
-            breaks = sort(unique(c(seq(basar, slut_ar, by = 6), slut_ar))),
+            limits = c(start_fig, slut_fig),
+            breaks = ar_bryt,
             expand = ggplot2::expansion(mult = c(.02, .04))
           ) +
           ggplot2::scale_y_continuous(
@@ -163,7 +172,7 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
       figur_id = "STR-01", odlingsgrupp = grupp, figurgrupp = figurgrupp,
       matt = "Antal företag + Odlad areal/yta",
       enhet = paste0("företag + ", areal_enhet),
-      forsta_ar = min(x$ar), sista_ar = max(x$ar),
+      forsta_ar = start_fig, sista_ar = slut_fig,
       grodor = paste(grodor, collapse = "; "),
       stringsAsFactors = FALSE
     )
