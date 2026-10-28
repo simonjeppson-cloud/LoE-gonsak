@@ -6,11 +6,14 @@ gronsak_farger <- c(
   "#9C6D40", "#7186B2", "#A65C74", "#5C8068"
 )
 
-gronsak_skala_farg <- function() {
-  ggplot2::scale_colour_manual(values = function(n) {
-    if (n <= length(gronsak_farger)) return(gronsak_farger[seq_len(n)])
+gronsak_skala_farg <- function(n = 64L) {
+  stopifnot(length(n) == 1L, n >= 1L)
+  farger <- if (n <= length(gronsak_farger)) {
+    gronsak_farger[seq_len(n)]
+  } else {
     grDevices::colorRampPalette(gronsak_farger)(n)
-  })
+  }
+  ggplot2::scale_colour_manual(values = farger)
 }
 
 gronsak_tema <- function(basstorlek = 10) {
