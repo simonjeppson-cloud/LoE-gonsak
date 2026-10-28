@@ -7,7 +7,10 @@ gronsak_farger <- c(
 )
 
 gronsak_skala_farg <- function() {
-  ggplot2::scale_colour_manual(values = gronsak_farger)
+  ggplot2::scale_colour_manual(values = function(n) {
+    if (n <= length(gronsak_farger)) return(gronsak_farger[seq_len(n)])
+    grDevices::colorRampPalette(gronsak_farger)(n)
+  })
 }
 
 gronsak_tema <- function(basstorlek = 10) {
