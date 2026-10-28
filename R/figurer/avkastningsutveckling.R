@@ -31,8 +31,14 @@ gronsak_avkastning_figurer <- function(underlag) {
       z <- z[order(z$ar), , drop = FALSE]
       # Bara intilliggande observerade år får bindas ihop med linje.
       z$segment <- cumsum(c(TRUE, diff(z$ar) != 1L))
+      # Rita endast linjer för segment med minst två observationer.
+      # Enstaka år visas som punkter, utan ggplot-varningar.
+      antal_i_segment <- table(z$segment)
+      linjer <- z[as.character(z$segment) %in%
+                    names(antal_i_segment[antal_i_segment >= 2L]), , drop = FALSE]
       ggplot2::ggplot(z, ggplot2::aes(x = .data$ar, y = .data$avkastning)) +
-        ggplot2::geom_line(ggplot2::aes(group = .data$segment),
+        ggplot2::geom_line(data = linjer,
+                           ggplot2::aes(group = .data$segment),
                            colour = "#087EBD", linewidth = 1) +
         ggplot2::geom_point(colour = "#E66B32", size = 2) +
         ggplot2::scale_x_continuous(limits = c(start, slut), breaks = bryt,
