@@ -43,23 +43,22 @@ CSV-formatet är semikolonseparerat (svensk Excel, `read.csv2`):
 - `grupp` och `groda_kod` identifierar en gröda entydigt.
 - `groda_namn` kontrolleras mot källdata för att upptäcka namnändringar.
 - `figurgrupp` kan redigeras fritt: nytt namn skapar ny figurgrupp.
-- `visa_i_figur` ska vara `TRUE` eller `FALSE`; `FALSE` exkluderar
+- `visa_i_figur` accepterar `TRUE`/`FALSE` och svensk Excels `SANT`/`FALSKT`; `FALSE` exkluderar
   grödan **endast från denna figurtyp**, inte från data eller andra figurer.
 - `ordning` är ett positivt heltal och bestämmer panelraden uppifrån och ned inom figurgruppen.
 - `gruppordning` är ett positivt heltal som styr export- och katalogordning mellan bilder.
 - Ordningskolumnerna läggs till automatiskt i en äldre CSV första gången den läses, utan att ändra befintliga grupper eller visa/dölj-val. Ursprungligen används alfabetisk ordning.
 - Radordningen i Excel påverkar inte figurerna. Dubbla ordningsnummer inom en grupp och olika gruppordning inom samma grupp ger fel.
-- Dubblerade nycklar, saknade grödor och ogiltiga värden ger fel.
-- En gröda har i denna enkla modell en figurgrupp per figurtyp.
-  Om samma gröda senare ska visas i flera grupper behöver modellen utökas
-  uttryckligen, inte genom tysta dubbletter.
+- Samma `grupp` + `groda_kod` kan förekomma i flera olika `figurgrupp`: en gröda visas då i flera bilder utan att källdata eller cache dupliceras. Varje rad kan ha egen `ordning` och `visa_i_figur`.
+- Kombinationen `grupp` + `groda_kod` + `figurgrupp` måste vara unik; dubblerad gröda inom samma bild, saknade grödor och ogiltiga värden ger fel.
 
 ## STR-01 – godkänd grafisk riktning
 En gröda per rad med **antal företag till vänster** och
 **odlad areal/yta till höger**. Två ljusgrå kolumnrubriker överst,
 smala grå fält med grödnamn roterade 270 grader till höger.
 Varje panel har oberoende y-skala som börjar på noll.
-Alla paneler inom samma bild delar x-axel från figurgruppens första till sista observerade år (inom vald övergripande period). Årtalsmarkeringarna anpassas till periodens längd. Olika bilder kan ha olika tidsperioder.\nObserverade punkter, blå linje och orange punkter.
+Alla paneler inom samma bild delar x-axel från figurgruppens första till sista observerade år (inom vald övergripande period). Årtalsmarkeringarna anpassas till periodens längd. Olika bilder kan ha olika tidsperioder.
+Observerade punkter, blå linje och orange punkter.
 Slutvärden i mörk text på halvtransparent vit etikett inne i panelen.
 Luft (0,38 cm) mellan grödraderna; inga upprepade kolumnrubriker.
 Växthusyta i m², annan areal i ha. Företagstal får inte summeras
