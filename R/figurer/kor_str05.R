@@ -1,10 +1,10 @@
 # STR-05 körs oberoende av STR-01–03.
 gronsak_kor_str05 <- function(tabeller, basar = 2002L, slut_ar = 2025L,
-    mapp = "figurer/STR-05_index", bredd_cm = 16, dpi = 300) {
+    mapp = "figurer/STR-05_produktivitet", bredd_cm = 16, dpi = 300) {
   config <- file.path(mapp, "config.csv")
   if (!file.exists(config))
     stop("STR-05-konfiguration saknas: ", config,
-         ". Kopiera STR-03_produktion/config.csv dit utan att skriva över befintlig fil.")
+         ". Kopiera STR-04_index/config.csv dit utan att skriva över befintlig fil.")
   if (basar >= slut_ar) stop("basar måste vara mindre än slut_ar")
   d <- gronsak_berakna_str05(tabeller, basar, slut_ar)
   d <- gronsak_indelning(d, fil = config)
