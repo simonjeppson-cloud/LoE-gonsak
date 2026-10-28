@@ -107,7 +107,7 @@ gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L) {
                          ggplot2::aes(label = .data$etikett),
                          direction = "y", hjust = 0, nudge_x = .45,
                          box.padding = .25, point.padding = .15,
-                         max.overlaps = Inf, size = 2.7,
+                         max.overlaps = Inf, size = 11 / ggplot2::.pt,
                          show.legend = FALSE, seed = 42) +
       ggplot2::coord_cartesian(clip = "off") +
       ggplot2::facet_wrap(~ matt, ncol = 1, scales = "free_y") +
