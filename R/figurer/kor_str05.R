@@ -16,19 +16,18 @@ gronsak_kor_str05 <- function(tabeller, basar = 2002L, slut_ar = 2025L,
   katalog$sokvag <- NA_character_
   for (i in seq_len(nrow(katalog))) {
     z <- katalog[i, ]
-    nyckel <- paste(z$odlingsgrupp, z$figurgrupp, sep = "__")
+    nyckel <- paste(z$odlingsgrupp, z$figurgrupp, z$groda_kod, sep = "__")
     slug <- function(s) {
       s <- iconv(tolower(s), from = "UTF-8", to = "ASCII//TRANSLIT")
       if (is.na(s)) s <- "okand"
       gsub("(^-+|-+$)", "", gsub("[^a-z0-9]+", "-", s))
     }
     fil <- paste0("STR-05_", slug(z$odlingsgrupp), "_", slug(z$figurgrupp),
-                  "_", basar, "-", slut_ar, ".png")
+                  "_", slug(z$groda_namn), "_", z$groda_kod, "_", basar, "-", slut_ar, ".png")
     mal <- file.path(bildmapp, fil)
-    tmp <- tempfile("str04-", tmpdir = bildmapp, fileext = ".png")
-    antal <- length(strsplit(z$grodor, "; ", fixed = TRUE)[[1]])
+    tmp <- tempfile("str05-", tmpdir = bildmapp, fileext = ".png")
     ggplot2::ggsave(tmp, plot = fig$figurer[[nyckel]],
-      width = bredd_cm, height = max(13, 11*antal + 3),
+      width = bredd_cm, height = 12,
       units = "cm", dpi = dpi, bg = "white")
     if (file.exists(mal) && !file.remove(mal)) {
       unlink(tmp); stop("Kan inte ersätta öppen PNG-fil: ", mal)
