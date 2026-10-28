@@ -126,7 +126,69 @@ gronsak_figur_struktur <- function(tabeller, basar = 2002L, slut_ar = 2023L) {
       gronsak_tema() +
       ggplot2::theme(plot.margin = ggplot2::margin(6, 20, 6, 6))
   })
+  # Alternativ rapportlayout: små multiplar med faktiska värden.
+  # Varje gröda har egna paneler för företag respektive areal.
+  figurer_sma <- lapply(seq_len(nrow(figurval)), function(i) {
+    grupp <- figurval$grupp[[i]]
+    delgrupp <- figurval$figurgrupp[[i]]
+    d <- dplyr::filter(underlag, .data$grupp == .env$grupp,
+                       .data$figurgrupp == .env$delgrupp,
+                       .data$visa_i_figur, !is.na(.data$varde))
+    if (!nrow(d)) return(NULL)
+    d <- d |>
+      dplyr::mutate(
+        panel = factor(.data$matt,
+                       levels = c("Antal företag", "Odlad areal/yta"),
+                       labels = c("Företag", "Odlad areal/yta")),
+        groda = factor(.data[["Gröda_namn"]],
+                       levels = sort(unique(.data[["Gröda_namn"]])))
+      )
+    slut <- d |>
+      dplyr::group_by(.data$groda, .data$panel) |>
+      dplyr::slice_max(.data$ar, n = 1, with_ties = FALSE) |>
+      dplyr::ungroup() |>
+      dplyr::mutate(
+        etikett = format(round(.data$varde), big.mark = " ",
+                         trim = TRUE, scientific = FALSE),
+        etikett = paste0(.data$etikett,
+                         dplyr::if_else(.data$matt == "Antal företag",
+                                        " företag",
+                                        dplyr::if_else(
+                                          grepl("kvm|m2|m²", .data[["Variabel_namn"]],
+                                                ignore.case = TRUE), " m²", " ha")))
+      )
+    ggplot2::ggplot(d, ggplot2::aes(x = .data$ar, y = .data$varde)) +
+      ggplot2::geom_line(colour = "#087EBD", linewidth = 1.05) +
+      ggplot2::geom_point(colour = "#E66B32", size = 2.2) +
+      ggplot2::geom_text(data = slut, ggplot2::aes(label = .data$etikett),
+                         hjust = -0.08, size = 11 / ggplot2::.pt,
+                         colour = "#087EBD", show.legend = FALSE) +
+      ggplot2::facet_grid(rows = ggplot2::vars(.data$groda),
+                          cols = ggplot2::vars(.data$panel),
+                          scales = "free_y") +
+      ggplot2::scale_x_continuous(
+        breaks = seq(basar, slut_ar, by = 6),
+        expand = ggplot2::expansion(mult = c(.03, .36))) +
+      ggplot2::scale_y_continuous(
+        labels = function(x) format(x, big.mark = " ", trim = TRUE,
+                                    scientific = FALSE),
+        expand = ggplot2::expansion(mult = c(.08, .16))) +
+      ggplot2::labs(
+        title = paste("Strukturutveckling:",
+                      if (grupp == "friland") delgrupp else rubriker[[grupp]]),
+        subtitle = "Faktiska värden per gröda – egna skalor i varje panel",
+        x = NULL, y = NULL,
+        caption = paste("Riksuppgifter. Företagsantal per gröda är inte",
+                        "unika företag i gruppen. Endast observerade värden visas.")
+      ) +
+      gronsak_tema() +
+      ggplot2::theme(
+        strip.text.y = ggplot2::element_text(angle = 0, face = "bold"),
+        panel.spacing = grid::unit(0.9, "lines"),
+        plot.margin = ggplot2::margin(8, 30, 8, 8))
+  })
+  names(figurer_sma) <- figurnamn
   names(figurer) <- figurnamn
-  list(figurer = figurer, figur = figurer[[1]], underlag = underlag,
+  list(figurer = figurer, figurer_sma = figurer_sma, figur = figurer[[1]], underlag = underlag,
        variabler = variabler, indelningskontroll = indelningskontroll)
 }
