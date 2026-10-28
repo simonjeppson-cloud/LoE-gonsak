@@ -59,7 +59,7 @@ En gröda per rad med **antal företag till vänster** och
 **odlad areal/yta till höger**. Två ljusgrå kolumnrubriker överst,
 smala grå fält med grödnamn roterade 270 grader till höger.
 Varje panel har oberoende y-skala som börjar på noll.
-Observerade punkter, blå linje och orange punkter.
+Alla paneler inom samma bild delar x-axel från figurgruppens första till sista observerade år (inom vald övergripande period). Årtalsmarkeringarna anpassas till periodens längd. Olika bilder kan ha olika tidsperioder.\nObserverade punkter, blå linje och orange punkter.
 Slutvärden i mörk text på halvtransparent vit etikett inne i panelen.
 Luft (0,38 cm) mellan grödraderna; inga upprepade kolumnrubriker.
 Växthusyta i m², annan areal i ha. Företagstal får inte summeras
