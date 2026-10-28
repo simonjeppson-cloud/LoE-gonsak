@@ -1,6 +1,6 @@
 # STR-03 körs separat från STR-01; inga configfiler skrivs över.
 gronsak_kor_produktion <- function(tabeller, basar = 2002L, slut_ar = 2025L,
-    mapp = "figurer/STR-03_avkastning", bredd_cm = 16, dpi = 300) {
+    mapp = "figurer/STR-03_produktion", bredd_cm = 16, dpi = 300) {
   config <- file.path(mapp, "config.csv")
   if (!file.exists(config))
     stop("STR-03-konfiguration saknas: ", config,
