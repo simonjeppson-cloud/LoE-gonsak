@@ -73,7 +73,7 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
           ggplot2::theme(
             plot.margin = ggplot2::margin(5, 6, 5, 4),
             axis.text = ggplot2::element_text(size = 9),
-            axis.text.y = ggplot2::element_text(angle = 90, hjust = 0.5, vjust = 0.5),
+            axis.text.y = ggplot2::element_text(angle = 0),
             axis.text.x = if (j == n) ggplot2::element_text(size = 9) else
               ggplot2::element_blank(),
             axis.ticks.x = if (j == n) ggplot2::element_line() else
@@ -121,7 +121,7 @@ gronsak_struktur_figurer <- function(underlag, basar = 2002L, slut_ar = 2023L) {
       }
       namnbox <- grid::grobTree(
         grid::rectGrob(gp = grid::gpar(fill = "#F3F5F6", col = NA)),
-        grid::textGrob(grodor[[j]], x = 0.5, rot = 90,
+        grid::textGrob(grodor[[j]], x = 0.5, rot = 270,
                        gp = grid::gpar(fontfamily = "Times New Roman",
                                        fontface = "bold", fontsize = 9))
       )
